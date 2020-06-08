@@ -2,6 +2,7 @@ import { config } from "./config";
 import { Observable, merge } from "rxjs";
 import { flatMap, tap } from "rxjs/operators";
 import { FinnTripResult } from "./model";
+import { HTML } from "./html";
 const cheerioApi: CheerioAPI = require('cheerio');
 
 const supression = 'Andre annonser vi tror du vil like';
@@ -126,22 +127,22 @@ export function forwardTrips(gmail, auth, finnTripResults: Array<FinnTripResult>
             return Math.ceil(seconds / 60) + "min";
         }
 
-        msg += div(
-            '<a href=\"' + result.ad.url + '\"><h3>' + result.ad.address +'</h3></a>',
-            ...result.ad.facts.map((fact) => span('<b>' + fact.key + ':</b> ' + fact.value)  + '<br />'),
-            '<br />',
-            table(
-                tr(
+        msg += HTML.div(
+            HTML.a(result.ad.url, HTML.h3(result.ad.address)),
+            ...result.ad.facts.map((fact) => HTML.span(HTML.b(fact.key + ':') + ' ' + fact.value)  + HTML.lineBreak),
+            HTML.lineBreak,
+            HTML.table(
+                HTML.tr(
                     result.trips.map((trip) =>
-                        th(
+                        HTML.th(
                             trip.to.address + ': ' + inMinutes(trip.duration)
                         )
                     ).join('')
                 ) +
-                tr(
+                HTML.tr(
                     result.trips.map((trip) =>
-                        td(
-                            ul(
+                        HTML.td(
+                            HTML.ul(
                                 ...trip.legs.map((leg) =>
                                     leg.mode + (leg.line ? " line " + leg.line.publicCode : "") + " - " + inMinutes(leg.duration))
                             )
@@ -171,34 +172,6 @@ export function forwardTrips(gmail, auth, finnTripResults: Array<FinnTripResult>
             console.log("mail forwarded sucessfully");
         }
     });
-}
-
-function div(...content: string[]): string {
-    return '<div>' + content.join('') + '</div>'
-}
-
-function span(content: string): string {
-    return '<span>' + content + '</span>'
-}
-
-function table(content: string): string {
-    return '<table>' + content + '</table>'
-}
-
-function tr(content: string): string {
-    return '<tr>' + content + '</tr>'
-}
-
-function th(content: string): string {
-    return '<th>' + content + '</th>'
-}
-
-function td(content: string): string {
-    return '<td>' + content + '</td>'
-}
-
-function ul(...content: string[]): string {
-    return '<ul>' + content.map((c) => '<li>' + c + '</li>').join('') + '</ul>'
 }
 
 function createEmail(to, from, subject, message) {
