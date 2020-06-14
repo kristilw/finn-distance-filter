@@ -17,7 +17,7 @@ function forwardRelevantMail(auth, gmail): void {
 
 function isWithinReach(finnTripResult: FinnTripResult, finnFilters: Array<FinnFilter>): boolean {
     return finnTripResult.trips.every((trip) => {
-        const filter = finnFilters.find((filter) => filter.address === trip.from.address);
+        const filter = finnFilters.find((filter) => filter.address === trip.to.address);
         return filter ? trip.duration < filter.maxDurationSeconds : true;
     });
 }
